@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+const Joi = require('joi');
 const express = require('express');
 const app = express();
 //enabling parsing of json objects in body of req
@@ -45,6 +46,17 @@ app.get('/api/courses/:id' , (req , res) => {
 
 //Handling HTTP POST requests
 app.post('/api/courses',(req,res) => {
+
+    // const schema = {
+    //     name: Joi.string().min(3).required()
+    // };
+    // const result = Joi.validate(req.body , schema);
+    const result = validateCourse(req.body);
+    if(result.error){
+        //400 bad request
+        res.status(400).send(result.error.details[0].message);
+        return;
+    }
     //read from body of post req made by postman
     const course = {
         id: courses.length + 1 ,
@@ -56,6 +68,33 @@ app.post('/api/courses',(req,res) => {
     res.send(course);
 });
 
+//Handling HTTP PUT requests
+//Look up the course
+//if it does not exist 404
+//else validate
+//if errors 400
+//else update course
+//return it to user
+app.put('/api/courses/:id' , (req , res) => {
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if(!course){
+       return res.status(404).send("the course was not found");
+    }
+    const result = validateCourse(req.body);
+    if(result.error){
+       return res.status(400).send(result.error.details[0].message);
+    }
+    course.name = req.body.name;
+    res.send(course);
+});
+
+//making a function as we need to reuse joi valiadation
+function validateCourse (course){
+    const schema = {
+        name: Joi.string().min(3).required()
+    };
+    return Joi.validate(course , schema);
+}
 
 //Environment variable
 const port = process.env.PORT || 3000 ;
