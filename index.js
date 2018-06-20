@@ -1,6 +1,8 @@
 /*jshint esversion: 6 */
 const express = require('express');
 const app = express();
+//enabling parsing of json objects in body of req
+app.use(express.json());
 
 const courses = [
     {id:1 , course:"html" , author:"abs"},
@@ -40,6 +42,20 @@ app.get('/api/courses/:id' , (req , res) => {
     }
     res.send(course);
 });
+
+//Handling HTTP POST requests
+app.post('/api/courses',(req,res) => {
+    //read from body of post req made by postman
+    const course = {
+        id: courses.length + 1 ,
+        name: req.body.name
+    };
+    //push it to our array
+    courses.push(course);
+    //return it in body of response toverify that its added
+    res.send(course);
+});
+
 
 //Environment variable
 const port = process.env.PORT || 3000 ;
