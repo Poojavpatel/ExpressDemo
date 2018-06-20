@@ -96,6 +96,21 @@ function validateCourse (course){
     return Joi.validate(course , schema);
 }
 
+//Handling HTTP DELETE request
+//Look up for the course
+//if does not exist 404
+//else delete it
+//return course to the user
+app.delete('/api/courses/:id' , (req , res) => {
+    const course = courses.find(c => c.id === parseInt(req.params.id));
+    if(!course){
+       return res.status(404).send("the course was not found");
+    } 
+    const index = courses.indexOf(course);
+    courses.splice(index , 1);
+    res.send(course);
+});
+
 //Environment variable
 const port = process.env.PORT || 3000 ;
 
